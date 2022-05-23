@@ -29,6 +29,9 @@ export const keyToMultibase = key =>
 export const didToKey = did =>
   DID_JLINX_REGEXP.test(did) && RegExp.$1
 
+export const coreToKey = core =>
+  b4a.from(core.key, 'hex')
+
 export function createRandomString(size = 12){
   const random = Buffer.allocUnsafe(size)
   sodium.randombytes_buf(random)
