@@ -2,7 +2,7 @@ import Path from 'path'
 import fs from 'fs/promises'
 import safetyCatch from 'safety-catch'
 import b4a from 'b4a'
-import { fsExists } from './util.js'
+import { fsExists } from './index.js'
 
 /*
  * creates and stores private keys but never gives you then

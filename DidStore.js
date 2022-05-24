@@ -1,5 +1,5 @@
 import FileStore from './FileStore.js'
-import { isJlinxDid } from './util.js'
+import { isJlinxDid } from './index.js'
 
 export default class Didstore extends FileStore {
 

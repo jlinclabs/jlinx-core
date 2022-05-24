@@ -1,4 +1,4 @@
-import { isJlinxDid, keyToMultibase } from './util.js'
+import { isJlinxDid, keyToMultibase } from './index.js'
 
 export default function createDidDocument(options = {}) {
   const { did, signingPublicKey, encryptingPublicKey } = options

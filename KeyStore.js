@@ -16,7 +16,7 @@ import {
   createEncryptingKeyPair,
   validateSigningKeyPair,
   validateEncryptingKeyPair,
-} from './util.js'
+} from './index.js'
 
 /*
  * creates and stores private keys but never gives you then
