@@ -1,3 +1,3 @@
-# jlinx-core
+# jlinx-util
 
 core utilities of jlinx systems

@@ -1,5 +1,5 @@
 {
-  "name": "jlinx-core",
+  "name": "jlinx-util",
   "type": "module",
   "version": "1.0.0",
   "description": "JLINX core lib",
