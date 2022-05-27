@@ -1,65 +1,47 @@
-import fs from 'fs/promises'
-import b64 from 'urlsafe-base64'
-import b4a from 'b4a'
-import sodium from 'sodium-universal'
+const fs = require('fs/promises')
+const crypto = require('hypercore-crypto')
+const b64 = require('urlsafe-base64')
+const b4a = require('b4a')
+const sodium = require('sodium-universal')
 
-const PREFIX = 'did:jlinx:'
-const LENGTH = PREFIX.length + 43
+exports.sign = crypto.sign
+exports.verify = crypto.verify
+exports.randomBytes = crypto.randomBytes
 
-export const DID_JLINX_REGEXP = /^did:jlinx:([A-Za-z0-9\-_]{43})$/
+exports.now = () => (new Date()).toISOString().slice(0, -1)
 
-export const isPublicKey = publicKey =>
-  keyToString(publicKey).match(/^[A-Za-z0-9\-_]{43}$/)
-
-export const isJlinxDid = did =>
-  DID_JLINX_REGEXP.test(did)
-
-export const keyToString = key =>
+exports.keyToString = key =>
   typeof key === 'string' ? key : b64.encode(key)
 
-export const keyToBuffer = key =>
+exports.keyToBuffer = key =>
   Buffer.isBuffer(key) ? key : b64.decode(key)
 
-export const keyToDid = key =>
-  `${PREFIX}${keyToString(key)}`
+exports.keyToMultibase = key =>
+  `u${exports.keyToString(key)}`
 
-export const keyToMultibase = key =>
-  `u${keyToString(key)}`
+exports.isPublicKey = publicKey =>
+  exports.keyToString(publicKey).match(/^[A-Za-z0-9\-_]{43}$/)
 
-export const didToKey = did =>
-  DID_JLINX_REGEXP.test(did) && RegExp.$1
-
-export const coreToKey = core =>
-  b4a.from(core.key, 'hex')
-
-export function createRandomString(size = 12){
-  const random = Buffer.allocUnsafe(size)
-  sodium.randombytes_buf(random)
-  return random.toString('hex')
+exports.createRandomString = function (size = 12) {
+  return exports.randomBytes(size).toString('hex')
 }
 
-export function createSigningKeyPair(seed){
-  const publicKey = b4a.allocUnsafe(sodium.crypto_sign_PUBLICKEYBYTES)
-  const secretKey = b4a.allocUnsafe(sodium.crypto_sign_SECRETKEYBYTES)
-  if (seed) sodium.crypto_sign_seed_keypair(publicKey, secretKey, seed)
-  else sodium.crypto_sign_keypair(publicKey, secretKey)
-  return { publicKey, secretKey }
+exports.createSigningKeyPair = function (seed) {
+  return crypto.keyPair(seed)
 }
 
-export function validateSigningKeyPair(keyPair) {
-  const pk = b4a.allocUnsafe(sodium.crypto_sign_PUBLICKEYBYTES)
-  sodium.crypto_sign_ed25519_sk_to_pk(pk, keyPair.secretKey)
-  return b4a.equals(pk, keyPair.publicKey)
+exports.validateSigningKeyPair = function (keyPair) {
+  return crypto.validateKeyPair(keyPair)
 }
 
-export function createEncryptingKeyPair(){
+exports.createEncryptingKeyPair = function () {
   const publicKey = b4a.allocUnsafe(sodium.crypto_box_PUBLICKEYBYTES)
   const secretKey = b4a.allocUnsafe(sodium.crypto_box_SECRETKEYBYTES)
-  sodium.crypto_box_keypair(publicKey, secretKey);
+  sodium.crypto_box_keypair(publicKey, secretKey)
   return { publicKey, secretKey }
 }
 
-export function validateEncryptingKeyPair(keyPair) {
+exports.validateEncryptingKeyPair = function (keyPair) {
   const nonce = b4a.allocUnsafe(sodium.crypto_box_NONCEBYTES)
   const message = b4a.from('Hello, World!')
   const mac = b4a.allocUnsafe(sodium.crypto_box_MACBYTES)
@@ -70,11 +52,11 @@ export function validateEncryptingKeyPair(keyPair) {
   return b4a.equals(plain, message)
 }
 
-export async function fsExists(path){
-  try{
+exports.fsExists = async function (path) {
+  try {
     await fs.stat(path)
     return true
-  }catch(error){
+  } catch (error) {
     if (error.code === 'ENOENT') return false
     throw error
   }
