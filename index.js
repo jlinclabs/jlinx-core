@@ -1,5 +1,4 @@
 const crypto = require('hypercore-crypto')
-const b64 = require('urlsafe-base64')
 const b4a = require('b4a')
 const sodium = require('sodium-universal')
 const base58 = require('./base58')
@@ -12,16 +11,19 @@ exports.randomBytes = crypto.randomBytes
 exports.now = () => (new Date()).toISOString().slice(0, -1)
 
 exports.keyToString = key =>
-  typeof key === 'string' ? key : b64.encode(key)
+  typeof key === 'string' ? key : base58.encode(key)
 
 exports.keyToBuffer = key =>
-  Buffer.isBuffer(key) ? key : b64.decode(key)
+  Buffer.isBuffer(key) ? key : base58.decode(key)
 
 exports.keyToMultibase = key =>
   `u${exports.keyToString(key)}`
 
+exports.keyToUri = key =>
+  `jlinx:u${exports.keyToMultibase(key)}`
+
 exports.isPublicKey = publicKey =>
-  exports.keyToString(publicKey).match(/^[A-Za-z0-9\-_]{43}$/)
+  exports.keyToString(publicKey).match(/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/)
 
 exports.createRandomString = function (size = 12) {
   return exports.randomBytes(size).toString('hex')
