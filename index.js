@@ -37,6 +37,12 @@ exports.validateSigningKeyPair = function (keyPair) {
   return crypto.validateKeyPair(keyPair)
 }
 
+exports.createEncryptionKey = function () {
+  const encryptionKey = Buffer.alloc(sodium.crypto_stream_KEYBYTES, 'encryption key')
+  sodium.randombytes_buf(encryptionKey)
+  return encryptionKey
+}
+
 exports.createEncryptingKeyPair = function () {
   const publicKey = b4a.allocUnsafe(sodium.crypto_box_PUBLICKEYBYTES)
   const secretKey = b4a.allocUnsafe(sodium.crypto_box_SECRETKEYBYTES)
