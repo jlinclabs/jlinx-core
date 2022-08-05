@@ -1,6 +1,4 @@
 const test = require('brittle')
-const b4a = require('b4a')
-
 const util = require('../')
 
 test('now', async t => {

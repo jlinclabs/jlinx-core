@@ -23,12 +23,12 @@ exports.keyToUri = key =>
   `jlinx:${exports.keyToString(key)}`
 
 exports.jlinxUriToPublicKey = uri => {
-  const matches = uri.match(/^jlinx:([^:]+)/)
-  if (!matches) return
+  // const matches = uri.match(/^jlinx:([^:]+)/)
+  // if (!matches) return
 }
 
 exports.isPublicKey = publicKey => {
-  try{ publicKey = exports.keyToBuffer(publicKey) }catch(e){ return false }
+  try { publicKey = exports.keyToBuffer(publicKey) } catch (e) { return false }
   return publicKey.byteLength === sodium.crypto_sign_PUBLICKEYBYTES
   // exports.keyToString(publicKey).match(/^z[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/)
 }
