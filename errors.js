@@ -23,5 +23,4 @@ module.exports = class JlinxError extends Error {
   static INVALID_SIGNATURE (msg) {
     return new JlinxError(msg, 'INVALID_SIGNATURE', JlinxError.INVALID_SIGNATURE)
   }
-
 }

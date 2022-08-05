@@ -1,9 +1,7 @@
 const test = require('brittle')
-const constants = require('multibase/src/constants')
 const { createSigningKeyPair } = require('../')
 const multibase = require('../multibase')
 const JlinxId = require('../JlinxId')
-const { INVALID_JLINX_ID } = require('../errors')
 
 test('JlinxId', t => {
   const publicKeyAsHex = 'cdd0ae3ddae68928a13f07a6f3544442dd6b5a616a98f2b8e37f64c95d88f425'
@@ -63,7 +61,7 @@ test('JlinxId', t => {
       base64url: 'uzdCuPdrmiSihPwem81REQt1rWmFqmPK4439kyV2I9CU',
       base64urlpad: 'UzdCuPdrmiSihPwem81REQt1rWmFqmPK4439kyV2I9CU='
     })
-  ){
+  ) {
     t.is(multibase.encode(publicKey, encoding), encodedPublicKey)
 
     t.is(JlinxId.toString(encodedPublicKey), jlinxId)
@@ -78,13 +76,12 @@ test('JlinxId', t => {
   }
 
   t.exception(
-    () => { new JlinxId() },
+    () => { JlinxId.toString() },
     /INVALID_JLINX_ID: expected buffer/
   )
 
   t.exception(
-    () => { new JlinxId('booooooooosh') },
+    () => { JlinxId.toString('booooooooosh') },
     /INVALID_JLINX_ID: failed to parse multibase encoding/
   )
-
 })
