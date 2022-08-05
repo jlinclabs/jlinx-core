@@ -3,38 +3,34 @@ const constants = require('multibase/src/constants')
 const { createSigningKeyPair } = require('../')
 const multibase = require('../multibase')
 const JlinxId = require('../JlinxId')
+const { INVALID_JLINX_ID } = require('../errors')
 
 test('JlinxId', t => {
   const publicKeyAsHex = 'cdd0ae3ddae68928a13f07a6f3544442dd6b5a616a98f2b8e37f64c95d88f425'
-  const jlinxId = 'f' + publicKeyAsHex
+  const jlinxId = 'jlinx:f' + publicKeyAsHex
   const publicKey = Buffer.from(publicKeyAsHex, 'hex')
 
   // class methods
   t.is(JlinxId.toString(publicKey), jlinxId)
   t.alike(JlinxId.toPublicKey(jlinxId), publicKey)
-  t.is(JlinxId.toUri(jlinxId), `jlinx:${jlinxId}`)
 
   // as class instance
   const id = new JlinxId(jlinxId)
   t.is(id.toString(), jlinxId)
   t.alike(id.publicKey, publicKey)
-  t.is(id.toUri(), `jlinx:${jlinxId}`)
 
   let tries = 10
   while (tries--) {
     const { publicKey } = createSigningKeyPair()
     let id = new JlinxId(publicKey)
-    t.is(id.toString(), 'f' + publicKey.toString('hex'))
-    t.is(id.toString().length, 65)
+    t.is(id.toString(), 'jlinx:f' + publicKey.toString('hex'))
     t.alike(id.publicKey, publicKey)
-    t.is(id.toUri(), `jlinx:${id.toString()}`)
 
     id = new JlinxId(id.toString())
-    t.is(id.toString(), 'f' + publicKey.toString('hex'))
+    t.is(id.toString(), 'jlinx:f' + publicKey.toString('hex'))
     t.alike(id.publicKey, publicKey)
 
-    id = new JlinxId(id.toUri())
-    t.is(id.toString(), 'f' + publicKey.toString('hex'))
+    t.is(id.toString(), 'jlinx:f' + publicKey.toString('hex'))
     t.alike(id.publicKey, publicKey)
   }
 
@@ -42,7 +38,7 @@ test('JlinxId', t => {
   // examples found here https://github.com/multiformats/js-multibase/blob/master/test/multibase.spec.js
 
   for (
-    const [encoding, encoded] of
+    const [encoding, encodedPublicKey] of
     Object.entries({
       base2: '01100110111010000101011100011110111011010111001101000100100101000101000010011111100000111101001101111001101010100010001000100001011011101011010110101101001100001011010101001100011110010101110001110001101111111011001001100100101011101100010001111010000100101',
       base8: '763350256173553464222424117603646746521042055655326460552461712707067754462256610750224',
@@ -68,19 +64,27 @@ test('JlinxId', t => {
       base64urlpad: 'UzdCuPdrmiSihPwem81REQt1rWmFqmPK4439kyV2I9CU='
     })
   ){
-    t.is(multibase.encode(publicKey, encoding), encoded)
+    t.is(multibase.encode(publicKey, encoding), encodedPublicKey)
 
-    t.is(JlinxId.toString(encoded), jlinxId)
-    t.alike(JlinxId.toPublicKey(encoded), publicKey)
-    t.is(JlinxId.toUri(encoded), `jlinx:${jlinxId}`)
+    t.is(JlinxId.toString(encodedPublicKey), jlinxId)
+    t.alike(JlinxId.toPublicKey(encodedPublicKey), publicKey)
 
-    let id = new JlinxId(encoded)
+    let id = new JlinxId(encodedPublicKey)
     t.is(id.toString(), jlinxId)
     t.alike(id.publicKey, publicKey)
-    t.is(id.toUri(), `jlinx:${jlinxId}`)
-    id = new JlinxId(`jlinx:${encoded}`)
+    id = new JlinxId(`jlinx:${encodedPublicKey}`)
     t.is(id.toString(), jlinxId)
     t.alike(id.publicKey, publicKey)
-    t.is(id.toUri(), `jlinx:${jlinxId}`)
   }
+
+  t.exception(
+    () => { new JlinxId() },
+    /INVALID_JLINX_ID: expected buffer/
+  )
+
+  t.exception(
+    () => { new JlinxId('booooooooosh') },
+    /INVALID_JLINX_ID: failed to parse multibase encoding/
+  )
+
 })
