@@ -1,29 +1,37 @@
 const crypto = require('hypercore-crypto')
 const b4a = require('b4a')
 const sodium = require('sodium-universal')
-const base58 = require('./base58')
+const multibase = require('./multibase')
 
-exports.base58 = base58
 exports.sign = crypto.sign
 exports.verify = crypto.verify
 exports.randomBytes = crypto.randomBytes
+exports.multibase = multibase
+exports.encode = multibase.encode
 
 exports.now = () => (new Date()).toISOString().slice(0, -1)
 
 exports.keyToString = key =>
-  typeof key === 'string' ? key : base58.encode(key)
+  typeof key === 'string'
+    ? key
+    : exports.encode(key)
 
 exports.keyToBuffer = key =>
-  Buffer.isBuffer(key) ? key : base58.decode(key)
-
-exports.keyToMultibase = key =>
-  `u${exports.keyToString(key)}`
+  Buffer.isBuffer(key) ? key : multibase.toBuffer(key)
 
 exports.keyToUri = key =>
-  `jlinx:u${exports.keyToMultibase(key)}`
+  `jlinx:${exports.keyToString(key)}`
 
-exports.isPublicKey = publicKey =>
-  exports.keyToString(publicKey).match(/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/)
+exports.jlinxUriToPublicKey = uri => {
+  const matches = uri.match(/^jlinx:([^:]+)/)
+  if (!matches) return
+}
+
+exports.isPublicKey = publicKey => {
+  try{ publicKey = exports.keyToBuffer(publicKey) }catch(e){ return false }
+  return publicKey.byteLength === sodium.crypto_sign_PUBLICKEYBYTES
+  // exports.keyToString(publicKey).match(/^z[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/)
+}
 
 exports.createRandomString = function (size = 12) {
   return exports.randomBytes(size).toString('hex')

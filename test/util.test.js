@@ -1,4 +1,6 @@
 const test = require('brittle')
+const b4a = require('b4a')
+
 const util = require('../')
 
 test('now', async t => {
@@ -7,22 +9,25 @@ test('now', async t => {
 
 test('key transformations', async t => {
   const publicKeyAsHex = 'cdd0ae3ddae68928a13f07a6f3544442dd6b5a616a98f2b8e37f64c95d88f425'
+  const publicKeyAsMultibase = 'zErR8uLsXoD2ZRuyVHZifFttunuzNpmAiaTYxhE3W4XEt'
   const publicKey = Buffer.from(publicKeyAsHex, 'hex')
-  const publicKeyAsBase58 = 'ErR8uLsXoD2ZRuyVHZifFttunuzNpmAiaTYxhE3W4XEt'
-  const uri = `jlinx:uu${publicKeyAsBase58}`
+  const uri = `jlinx:${publicKeyAsMultibase}`
   t.is(publicKey.toString('hex'), publicKeyAsHex)
 
-  t.is(util.keyToString(publicKey), publicKeyAsBase58)
-  t.is(util.keyToString(publicKeyAsBase58), publicKeyAsBase58)
+  t.is(util.encode(publicKey), publicKeyAsMultibase)
+
+  t.is(util.keyToString(publicKey), publicKeyAsMultibase)
+  t.is(util.keyToString(publicKeyAsMultibase), publicKeyAsMultibase)
 
   t.alike(util.keyToBuffer(publicKey), publicKey)
-  t.alike(util.keyToBuffer(publicKeyAsBase58), publicKey)
+  t.alike(util.keyToBuffer(publicKeyAsMultibase), publicKey)
 
+  console.log('KEY AS STRING', util.keyToString(publicKey))
   t.ok(util.isPublicKey(publicKey))
-  t.ok(util.isPublicKey(publicKeyAsBase58))
+  t.ok(util.isPublicKey(publicKeyAsMultibase))
 
   t.is(util.keyToUri(publicKey), uri)
-  t.is(util.keyToUri(publicKeyAsBase58), uri)
+  t.is(util.keyToUri(publicKeyAsMultibase), uri)
 })
 
 test('createRandomString', t => {
