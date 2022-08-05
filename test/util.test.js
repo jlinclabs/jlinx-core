@@ -20,12 +20,20 @@ test('key transformations', async t => {
   t.alike(util.keyToBuffer(publicKey), publicKey)
   t.alike(util.keyToBuffer(publicKeyAsMultibase), publicKey)
 
-  console.log('KEY AS STRING', util.keyToString(publicKey))
   t.ok(util.isPublicKey(publicKey))
   t.ok(util.isPublicKey(publicKeyAsMultibase))
 
   t.is(util.keyToUri(publicKey), uri)
   t.is(util.keyToUri(publicKeyAsMultibase), uri)
+
+  let tries = 100
+  while (tries--) {
+    const { publicKey } = util.createSigningKeyPair()
+    const key = util.keyToString(publicKey)
+    t.ok(util.isPublicKey(publicKey))
+    t.ok(util.isPublicKey(key))
+    t.alike(util.keyToBuffer(key), publicKey)
+  }
 })
 
 test('createRandomString', t => {

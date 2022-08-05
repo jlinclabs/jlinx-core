@@ -22,4 +22,7 @@ test('multibase', t => {
     multibase.toString(helloWorldEncoded),
     'hello world'
   )
+
+  // TODO needs tests for decoding other multibase formats
+  // examples found here https://github.com/multiformats/js-multibase/blob/master/test/multibase.spec.js
 })
