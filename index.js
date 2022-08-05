@@ -7,20 +7,35 @@ exports.sign = crypto.sign
 exports.verify = crypto.verify
 exports.randomBytes = crypto.randomBytes
 exports.multibase = multibase
-exports.encode = multibase.encode
 
 exports.now = () => (new Date()).toISOString().slice(0, -1)
 
-exports.keyToString = key =>
-  typeof key === 'string'
-    ? key
-    : exports.encode(key)
+exports.jlinxIdToBuffer = jlinxId =>
+  JlinxId.toBuffer(jlinxId)
+// exports.keyToString = key => {
+//   if (exports.isPublicKey(key))
+//     throw new Error(`invalid jlinx key="${exports.stringToHex(key)}"`)
+//   return typeof key === 'string'
+//     ? key
+//     : 'v' + exports.bufferToHex(key)
+// }
 
-exports.keyToBuffer = key =>
-  Buffer.isBuffer(key) ? key : multibase.toBuffer(key)
+// exports.keyToBuffer = key =>
+//   Buffer.isBuffer(key) ? key : exports.hexToBuffer(key)
 
-exports.keyToUri = key =>
-  `jlinx:${exports.keyToString(key)}`
+// exports.keyToUri = key =>
+//   `jlinx:${exports.keyToString(key)}`
+
+exports.publicKeyToJlinxId = publicKey =>
+  'f' + publicKey.toString('hex')
+
+exports.jlinxIdToPublicKey = jlinxId => {
+  return multibase.toBuffer(jlinxId)
+}
+
+exports.publicKeyToJlinxUri = publicKey => {
+
+}
 
 exports.jlinxUriToPublicKey = uri => {
   // const matches = uri.match(/^jlinx:([^:]+)/)
@@ -28,7 +43,9 @@ exports.jlinxUriToPublicKey = uri => {
 }
 
 exports.isPublicKey = publicKey => {
+  console.log({ publicKey })
   try { publicKey = exports.keyToBuffer(publicKey) } catch (e) { return false }
+  console.log({ publicKey }, publicKey.byteLength)
   return publicKey.byteLength === sodium.crypto_sign_PUBLICKEYBYTES
   // exports.keyToString(publicKey).match(/^z[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$/)
 }
