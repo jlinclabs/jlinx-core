@@ -1,4 +1,5 @@
 const test = require('brittle')
+const multibase = require('../multibase')
 const util = require('../')
 
 test('now', async t => {
@@ -6,23 +7,18 @@ test('now', async t => {
 })
 
 test('key transformations', async t => {
-  const publicKeyAsHex = 'cdd0ae3ddae68928a13f07a6f3544442dd6b5a616a98f2b8e37f64c95d88f425'
-  const publicKey = Buffer.from(publicKeyAsHex, 'hex')
-  const publicKeyAsMultibase = 'f' + publicKeyAsHex
-  const jlinxId = 'jlinx:' + publicKeyAsMultibase
-
-  t.alike(util.jlinxIdToPublicKey(jlinxId), publicKey)
-  t.alike(util.jlinxIdToString(publicKey), jlinxId)
-
-  let tries = 10
-  while (tries--) {
-    const { publicKey } = util.createSigningKeyPair()
-    const jlinxId = 'jlinx:f' + publicKey.toString('hex')
-    t.is(util.jlinxIdToString(publicKey), jlinxId)
-    t.alike(util.jlinxIdToPublicKey(jlinxId), publicKey)
-    t.ok(util.isPublicKey(publicKey))
-    t.ok(util.isPublicKey(jlinxId))
-  }
+  const { publicKey } = util.createSigningKeyPair()
+  const jlinxId = util.publicKeyToJlinxId(publicKey)
+  t.is(
+    util.publicKeyToJlinxId(publicKey),
+    'jlinx:' + multibase.encode(publicKey, 'base64url')
+  )
+  t.alike(
+    util.jlinxIdToPublicKey(jlinxId),
+    publicKey
+  )
+  t.ok(util.isPublicKey(publicKey))
+  t.not(util.isPublicKey(jlinxId))
 })
 
 test('createRandomString', t => {

@@ -2,22 +2,35 @@ const crypto = require('hypercore-crypto')
 const b4a = require('b4a')
 const sodium = require('sodium-universal')
 const multibase = require('./multibase')
-const JlinxId = require('./JlinxId')
 
 exports.sign = crypto.sign
 exports.verify = crypto.verify
 exports.randomBytes = crypto.randomBytes
 exports.multibase = multibase
-exports.JlinxId = JlinxId
 
 exports.now = () => (new Date()).toISOString().slice(0, -1)
 
-exports.jlinxIdToPublicKey = jlinxId => JlinxId.toPublicKey(jlinxId)
-exports.jlinxIdToString = jlinxId => JlinxId.toString(jlinxId)
+const JLINX_PREFIX = 'jlinx:'
+exports.publicKeyToJlinxId = publicKey => {
+  return JLINX_PREFIX + multibase.encode(publicKey)
+}
+
+exports.jlinxIdToPublicKey = jlinxId => {
+  return multibase.toBuffer(jlinxId.slice(JLINX_PREFIX.length))
+}
 
 exports.isPublicKey = publicKey => {
-  try { publicKey = JlinxId.toPublicKey(publicKey) } catch (e) { return false }
-  return publicKey.byteLength === sodium.crypto_sign_PUBLICKEYBYTES
+  if (typeof publicKey === 'string') {
+    try {
+      publicKey = multibase.toBuffer(publicKey)
+    } catch (e) {
+      return false
+    }
+  }
+  return (
+    b4a.isBuffer(publicKey) &&
+    publicKey.byteLength === sodium.crypto_sign_PUBLICKEYBYTES
+  )
 }
 
 exports.createRandomString = function (size = 12) {

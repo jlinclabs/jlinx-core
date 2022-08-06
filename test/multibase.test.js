@@ -6,14 +6,14 @@ test('multibase', t => {
   const publicKey = Buffer.from(publicKeyAsHex, 'hex')
   const publicKeyEncoded = multibase.encode(publicKey)
   t.is(typeof publicKeyEncoded, 'string')
-  t.is(publicKeyEncoded, 'f' + publicKeyAsHex)
+  t.is(publicKeyEncoded, 'uzdCuPdrmiSihPwem81REQt1rWmFqmPK4439kyV2I9CU')
   t.alike(multibase.toBuffer(publicKeyEncoded), publicKey)
 
   const helloWorldEncoded = multibase.encode('hello world')
   t.is(typeof helloWorldEncoded, 'string')
   t.is(
     helloWorldEncoded,
-    'f' + Buffer.from('hello world').toString('hex')
+    'uaGVsbG8gd29ybGQ'
   )
   t.is(
     multibase.toString(helloWorldEncoded),
